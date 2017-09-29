@@ -1,7 +1,8 @@
 var gulp = require('gulp'),
 	gutil = require('gulp-util'),
 	coffee = require('gulp-coffee'),
-	concat = require('gulp-concat');
+	concat = require('gulp-concat'),
+	browserify = require('gulp-browserify');
 
 
 //This command creates a task!! we name it log(log is a random name we gave) and with gutil.log we print a string
@@ -36,5 +37,6 @@ var jsSources = [
 gulp.task('js', function() {
 	gulp.src(jsSources)
 		.pipe(concat('script.js'))	//script.js this is the name of the file that will be created
+		.pipe(browserify())
 		.pipe(gulp.dest('builds/development/js'))
 });
