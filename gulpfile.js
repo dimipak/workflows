@@ -1,6 +1,7 @@
 var gulp = require('gulp'),
 	gutil = require('gulp-util'),
-	coffee = require('gulp-coffee');
+	coffee = require('gulp-coffee'),
+	concat = require('gulp-concat');
 
 
 //This command creates a task!! we name it log(log is a random name we gave) and with gutil.log we print a string
@@ -23,3 +24,17 @@ gulp.task('coffee', function() {
 			.on('error', gutil.log))
 		.pipe(gulp.dest('components/scripts'))
 })
+
+//The order counts on which will be processed first
+var jsSources = [
+	'components/scripts/rclick.js',
+	'components/scripts/pixgrid.js',
+	'components/scripts/tagline.js',
+	'components/scripts/template.js'
+];
+
+gulp.task('js', function() {
+	gulp.src(jsSources)
+		.pipe(concat('script.js'))	//script.js this is the name of the file that will be created
+		.pipe(gulp.dest('builds/development/js'))
+});
