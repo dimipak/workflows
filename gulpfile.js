@@ -6,7 +6,8 @@ var gulp = require('gulp'),
 	compass = require('gulp-compass'),
 	connect = require('gulp-connect'),
 	gulpif = require('gulp-if'),
-	uglify = require('gulp-uglify');
+	uglify = require('gulp-uglify'),
+	minifyHtml = require('gulp-minify-html');
 
 var env,
 	coffeeSources,
@@ -14,7 +15,7 @@ var env,
 	sassSources,
 	htmlSources,
 	jsonSources,
-	ouputDir,
+	outputDir,
 	sassStyle;
 
 
@@ -58,7 +59,7 @@ gulp.task('coffee', function() {
 	gulp.src(coffeeSources)
 		.pipe(coffee({ bare:true })
 		.on('error', gutil.log))
-		.pipe(gulp.dest('components/scripts'))
+		.pipe(gulp.dest('components/scripts'));
 });
 
 //The order counts on which will be processed first
@@ -75,7 +76,7 @@ gulp.task('js', function() {
 		.pipe(browserify())
 		.pipe(gulpif(env==='production',uglify()))	//if env = production then minimize our js
 		.pipe(gulp.dest(outputDir + 'js'))
-		.pipe(connect.reload()) //here we pipe also the reload method from connect module, so it reloads the page every time we make a change
+		.pipe(connect.reload()); //here we pipe also the reload method from connect module, so it reloads the page every time we make a change
 });
 
 //we put only this sass file because in there we import all the other sass files
@@ -90,30 +91,9 @@ gulp.task('compass', function() {
 		}))
 		.on('error', gutil.log)
 		.pipe(gulp.dest(outputDir + 'css'))
-		.pipe(connect.reload())	//here we pipe also the reload method from connect module, so it reloads the page every time we make a change
+		.pipe(connect.reload());	//here we pipe also the reload method from connect module, so it reloads the page every time we make a change
 });
 
-//This is the watch command. When we give a task a name of watch
-//and execute watch in the cmd then the cmd is working constantly
-//watching the tasks
-//So in the function we tell it to watch if there are any changes
-//on any variable(which the variables are connected to the file)
-//and if that happens execute the task we gave to the specific variable
-gulp.task('watch', function() {
-	gulp.watch(coffeeSources,['coffee']);
-	gulp.watch(jsSources,['js']);
-	gulp.watch('components/sass/*.scss',['compass']);
-	gulp.watch(htmlSources,['html']);
-	gulp.watch(jsonSources,['json']);
-});
-
-//Here we can use the second parameter of tasks which telling the system
-//to execute the other tasks before doing the main task
-//allthough here we dont have anything for this task to be execute
-//because we dont have an unnamed function, so we execute all the tasks
-//together
-//With the name 'default' we can execute in cmd gulp without any names after, just ->gulp
-gulp.task('default',['html','json','coffee','js','compass','connect','watch']);
 
 //here is the connect task, we put 2 attributes to this task
 //specify root folder, and turn livereload to true
@@ -129,14 +109,38 @@ htmlSources = [outputDir + '*.html'];
 //Here we creating a simple task just for html files if they changed
 //to reload.(no need of modueles or anything, just the file src)
 gulp.task('html', function() {
-	gulp.src(htmlSources)
-		.pipe(connect.reload())
-})
+	gulp.src('builds/development/*.html')
+		.pipe(gulpif(env==='production',minifyHtml()))
+		.pipe(gulpif(env==='production',gulp.dest(outputDir)))
+		.pipe(connect.reload());
+});
 
 jsonSources = [outputDir + 'js/*.json'];
 //Here we creating a simple task just for json files if they changed
 //to reload.(no need of modueles or anything, just the file src)
 gulp.task('json', function() {
 	gulp.src(jsonSources)
-		.pipe(connect.reload())
+		.pipe(connect.reload());
+});
+
+//Here we can use the second parameter of tasks which telling the system
+//to execute the other tasks before doing the main task
+//allthough here we dont have anything for this task to be execute
+//because we dont have an unnamed function, so we execute all the tasks
+//together
+//With the name 'default' we can execute in cmd gulp without any names after, just ->gulp
+gulp.task('default',['html','json','coffee','js','compass','connect','watch']);
+
+//This is the watch command. When we give a task a name of watch
+//and execute watch in the cmd then the cmd is working constantly
+//watching the tasks
+//So in the function we tell it to watch if there are any changes
+//on any variable(which the variables are connected to the file)
+//and if that happens execute the task we gave to the specific variable
+gulp.task('watch', function() {
+	gulp.watch(coffeeSources,['coffee']);
+	gulp.watch(jsSources,['js']);
+	gulp.watch('components/sass/*.scss',['compass']);
+	gulp.watch('builds/development/*.html',['html']);
+	gulp.watch(jsonSources,['json']);
 });
