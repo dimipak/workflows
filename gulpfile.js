@@ -55,3 +55,11 @@ gulp.task('compass', function() {
 		.on('error', gutil.log))
 		.pipe(gulp.dest('builds/development/css'))
 });
+
+//Here we can use the second parameter of tasks which telling the system
+//to execute the other tasks before doing the main task
+//allthough here we dont have anything for this task to be execute
+//because we dont have an unnamed function, so we execute all the tasks
+//together
+//With the name 'default' we can execute in cmd gulp without any names after, just ->gulp
+gulp.task('default',['coffee','js','compass']);
