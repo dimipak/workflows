@@ -6,6 +6,37 @@ var gulp = require('gulp'),
 	compass = require('gulp-compass'),
 	connect = require('gulp-connect');
 
+var env,
+	coffeeSources,
+	jsSources,
+	sassSources,
+	htmlSources,
+	jsonSources,
+	ouputDir,
+	sassStyle;
+
+
+
+//Its an environment variable
+//We go ahead and set it to use this process.env that node provides
+//and then check to see if we set up a NODE_ENV variable
+//this is environment variable and push that value into env variable
+//if that value is not set then we can use a default value of development
+//That way if we'd set this up in our operating system, then this new variable,
+//called env, would get the value of whatever we set, otherwise, it'll asume
+//that we're in the development environment
+//ON cmd: NODE_ENV=production gulp
+env = process.env.NODE_ENV || 'development';
+
+
+if (env==='development') {
+	outputDir = 'builds/development/';
+	sassStyle = 'expanded';
+} else {
+	outputDir = 'builds/production/';
+	sassStyle = 'compressed';
+}
+
 
 //This command creates a task!! we name it log(log is a random name we gave) and with gutil.log we print a string
 	// gulp.task('log', function() {
@@ -19,7 +50,7 @@ var gulp = require('gulp'),
 // .on method finds errors and log it on cmd with the gutil.log
 // lastly we .pipe the results of coffee command so we specify our destination
 // with gulp.dest()
-var coffeeSources = ['components/coffee/tagline.coffee']; //-->Or ['components/coffee/*.coffee'] for all the .coffee files
+coffeeSources = ['components/coffee/tagline.coffee']; //-->Or ['components/coffee/*.coffee'] for all the .coffee files
 
 gulp.task('coffee', function() {
 	gulp.src(coffeeSources)
@@ -29,7 +60,7 @@ gulp.task('coffee', function() {
 });
 
 //The order counts on which will be processed first
-var jsSources = [
+jsSources = [
 	'components/scripts/rclick.js',
 	'components/scripts/pixgrid.js',
 	'components/scripts/tagline.js',
@@ -40,22 +71,22 @@ gulp.task('js', function() {
 	gulp.src(jsSources)
 		.pipe(concat('script.js'))	//script.js this is the name of the file that will be created
 		.pipe(browserify())
-		.pipe(gulp.dest('builds/development/js'))
+		.pipe(gulp.dest(outputDir + 'js'))
 		.pipe(connect.reload()) //here we pipe also the reload method from connect module, so it reloads the page every time we make a change
 });
 
 //we put only this sass file because in there we import all the other sass files
-var sassSources = ['components/sass/style.scss'];
+sassSources = ['components/sass/style.scss'];
 
 gulp.task('compass', function() {
 	gulp.src(sassSources)
 		.pipe(compass({
 			sass: 'components/sass',
-			image: 'builds/development/images',
-			style: 'expanded'
-		})
-		.on('error', gutil.log))
-		.pipe(gulp.dest('builds/development/css'))
+			image: outputDir + 'images',
+			style: sassStyle
+		}))
+		.on('error', gutil.log)
+		.pipe(gulp.dest(outputDir + 'css'))
 		.pipe(connect.reload())	//here we pipe also the reload method from connect module, so it reloads the page every time we make a change
 });
 
@@ -85,12 +116,12 @@ gulp.task('default',['html','json','coffee','js','compass','connect','watch']);
 //specify root folder, and turn livereload to true
 gulp.task('connect', function() {
 	connect.server({
-		root:'builds/development/',
+		root:outputDir,
 		livereload: true
 	});
 });
 
-var htmlSources = ['builds/development/*.html'];
+htmlSources = [outputDir + '*.html'];
 
 //Here we creating a simple task just for html files if they changed
 //to reload.(no need of modueles or anything, just the file src)
@@ -99,7 +130,7 @@ gulp.task('html', function() {
 		.pipe(connect.reload())
 })
 
-var jsonSources = ['builds/development/js/*.json'];
+jsonSources = [outputDir + 'js/*.json'];
 //Here we creating a simple task just for json files if they changed
 //to reload.(no need of modueles or anything, just the file src)
 gulp.task('json', function() {
