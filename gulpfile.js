@@ -69,6 +69,8 @@ gulp.task('watch', function() {
 	gulp.watch(coffeeSources,['coffee']);
 	gulp.watch(jsSources,['js']);
 	gulp.watch('components/sass/*.scss',['compass']);
+	gulp.watch(htmlSources,['html']);
+	gulp.watch(jsonSources,['json']);
 });
 
 //Here we can use the second parameter of tasks which telling the system
@@ -77,11 +79,30 @@ gulp.task('watch', function() {
 //because we dont have an unnamed function, so we execute all the tasks
 //together
 //With the name 'default' we can execute in cmd gulp without any names after, just ->gulp
-gulp.task('default',['coffee','js','compass','connect','watch']);
+gulp.task('default',['html','json','coffee','js','compass','connect','watch']);
 
+//here is the connect task, we put 2 attributes to this task
+//specify root folder, and turn livereload to true
 gulp.task('connect', function() {
 	connect.server({
 		root:'builds/development/',
 		livereload: true
 	});
+});
+
+var htmlSources = ['builds/development/*.html'];
+
+//Here we creating a simple task just for html files if they changed
+//to reload.(no need of modueles or anything, just the file src)
+gulp.task('html', function() {
+	gulp.src(htmlSources)
+		.pipe(connect.reload())
+})
+
+var jsonSources = ['builds/development/js/*.json'];
+//Here we creating a simple task just for json files if they changed
+//to reload.(no need of modueles or anything, just the file src)
+gulp.task('json', function() {
+	gulp.src(jsonSources)
+		.pipe(connect.reload())
 });
