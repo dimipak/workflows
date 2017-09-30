@@ -63,3 +63,15 @@ gulp.task('compass', function() {
 //together
 //With the name 'default' we can execute in cmd gulp without any names after, just ->gulp
 gulp.task('default',['coffee','js','compass']);
+
+//This is the watch command. When we give a task a name of watch
+//and execute watch in the cmd then the cmd is working constantly
+//watching the tasks
+//So in the function we tell it to watch if there are any changes
+//on any variable(which the variables are connected to the file)
+//and if that happens execute the task we gave to the specific variable
+gulp.task('watch', function() {
+	gulp.watch(coffeeSources,['coffee']);
+	gulp.watch(jsSources,['js']);
+	gulp.watch('components/sass/*.scss',['compass']);
+});
