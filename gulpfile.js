@@ -2,7 +2,8 @@ var gulp = require('gulp'),
 	gutil = require('gulp-util'),
 	coffee = require('gulp-coffee'),
 	concat = require('gulp-concat'),
-	browserify = require('gulp-browserify');
+	browserify = require('gulp-browserify'),
+	compass = require('gulp-compass');
 
 
 //This command creates a task!! we name it log(log is a random name we gave) and with gutil.log we print a string
@@ -22,9 +23,9 @@ var coffeeSources = ['components/coffee/tagline.coffee']; //-->Or ['components/c
 gulp.task('coffee', function() {
 	gulp.src(coffeeSources)
 		.pipe(coffee({ bare:true })
-			.on('error', gutil.log))
+		.on('error', gutil.log))
 		.pipe(gulp.dest('components/scripts'))
-})
+});
 
 //The order counts on which will be processed first
 var jsSources = [
@@ -39,4 +40,18 @@ gulp.task('js', function() {
 		.pipe(concat('script.js'))	//script.js this is the name of the file that will be created
 		.pipe(browserify())
 		.pipe(gulp.dest('builds/development/js'))
+});
+
+//we put only this sass file because in there we import all the other sass files
+var sassSources = ['components/sass/style.scss'];
+
+gulp.task('compass', function() {
+	gulp.src(sassSources)
+		.pipe(compass({
+			sass: 'components/sass',
+			image: 'builds/development/images',
+			style: 'expanded'
+		})
+		.on('error', gutil.log))
+		.pipe(gulp.dest('builds/development/css'))
 });
