@@ -3,7 +3,8 @@ var gulp = require('gulp'),
 	coffee = require('gulp-coffee'),
 	concat = require('gulp-concat'),
 	browserify = require('gulp-browserify'),
-	compass = require('gulp-compass');
+	compass = require('gulp-compass'),
+	connect = require('gulp-connect');
 
 
 //This command creates a task!! we name it log(log is a random name we gave) and with gutil.log we print a string
@@ -40,6 +41,7 @@ gulp.task('js', function() {
 		.pipe(concat('script.js'))	//script.js this is the name of the file that will be created
 		.pipe(browserify())
 		.pipe(gulp.dest('builds/development/js'))
+		.pipe(connect.reload()) //here we pipe also the reload method from connect module, so it reloads the page every time we make a change
 });
 
 //we put only this sass file because in there we import all the other sass files
@@ -54,6 +56,7 @@ gulp.task('compass', function() {
 		})
 		.on('error', gutil.log))
 		.pipe(gulp.dest('builds/development/css'))
+		.pipe(connect.reload())	//here we pipe also the reload method from connect module, so it reloads the page every time we make a change
 });
 
 //This is the watch command. When we give a task a name of watch
@@ -74,4 +77,11 @@ gulp.task('watch', function() {
 //because we dont have an unnamed function, so we execute all the tasks
 //together
 //With the name 'default' we can execute in cmd gulp without any names after, just ->gulp
-gulp.task('default',['coffee','js','compass','watch']);
+gulp.task('default',['coffee','js','compass','connect','watch']);
+
+gulp.task('connect', function() {
+	connect.server({
+		root:'builds/development/',
+		livereload: true
+	});
+});
