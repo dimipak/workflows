@@ -7,7 +7,8 @@ var gulp = require('gulp'),
 	connect = require('gulp-connect'),
 	gulpif = require('gulp-if'),
 	uglify = require('gulp-uglify'),
-	minifyHtml = require('gulp-minify-html');
+	minifyHtml = require('gulp-minify-html'),
+	jsonminify = require('gulp-jsonminify');
 
 var env,
 	coffeeSources,
@@ -119,7 +120,9 @@ jsonSources = [outputDir + 'js/*.json'];
 //Here we creating a simple task just for json files if they changed
 //to reload.(no need of modueles or anything, just the file src)
 gulp.task('json', function() {
-	gulp.src(jsonSources)
+	gulp.src('builds/development/js/*.json')
+		.pipe(gulpif(env==='production',jsonminify()))
+		.pipe(gulpif(env==='production',gulp.dest('builds/production/js')))
 		.pipe(connect.reload());
 });
 
@@ -142,5 +145,5 @@ gulp.task('watch', function() {
 	gulp.watch(jsSources,['js']);
 	gulp.watch('components/sass/*.scss',['compass']);
 	gulp.watch('builds/development/*.html',['html']);
-	gulp.watch(jsonSources,['json']);
+	gulp.watch('builds/development/js/*.json',['json']);
 });
