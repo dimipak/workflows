@@ -4,7 +4,9 @@ var gulp = require('gulp'),
 	concat = require('gulp-concat'),
 	browserify = require('gulp-browserify'),
 	compass = require('gulp-compass'),
-	connect = require('gulp-connect');
+	connect = require('gulp-connect'),
+	gulpif = require('gulp-if'),
+	uglify = require('gulp-uglify');
 
 var env,
 	coffeeSources,
@@ -71,6 +73,7 @@ gulp.task('js', function() {
 	gulp.src(jsSources)
 		.pipe(concat('script.js'))	//script.js this is the name of the file that will be created
 		.pipe(browserify())
+		.pipe(gulpif(env==='production',uglify()))	//if env = production then minimize our js
 		.pipe(gulp.dest(outputDir + 'js'))
 		.pipe(connect.reload()) //here we pipe also the reload method from connect module, so it reloads the page every time we make a change
 });
